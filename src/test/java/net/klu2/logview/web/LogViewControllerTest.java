@@ -7,7 +7,6 @@ import junit.framework.Assert;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -17,12 +16,12 @@ public class LogViewControllerTest {
 
 	@Before
 	public void setup() {
-		controller = new LogViewController(new FileSystemResource("./src/test/resources/WEB-INF/"));
+		controller = new LogViewController("./src/test/resources/WEB-INF/");
 	}
 
 	@SuppressWarnings("unchecked")
 	@Test
-	public void webapps() throws IOException {
+	public void webapps()  {
 		ModelAndView webapps = controller.webapps();
 		Assert.assertEquals("webapps", webapps.getViewName());
 		List<String> list = (List<String>) webapps.getModel().get("apps");
@@ -34,7 +33,7 @@ public class LogViewControllerTest {
 
 	@SuppressWarnings("unchecked")
 	@Test
-	public void logfiles() throws IOException {
+	public void logfiles() {
 		ModelAndView logFiles = controller.logFiles("local.catalysts.catcoder");
 		Assert.assertEquals("logfiles", logFiles.getViewName());
 		List<LogFile> files = (List<LogFile>) logFiles.getModel().get("files");

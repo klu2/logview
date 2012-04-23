@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,26 +28,30 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 public class LogViewController {
 
-	private final Resource rootDirectory;
+	private final String rootDirectory;
+	private File rootDirectoryFile;
 
 	@Autowired
-	public LogViewController(@Value("#{systemProperties.rootdir}") Resource rootDirectory) {
+	public LogViewController(@Value("#{systemProperties.rootdir}") String rootDirectory) {
 		this.rootDirectory = rootDirectory;
-		if (!rootDirectory.exists()) {
-			throw new IllegalArgumentException(rootDirectory.toString() + " does not exist");
+		this.rootDirectoryFile = new File(rootDirectory);
+		if (!rootDirectoryFile.exists() || !rootDirectoryFile.isDirectory()) {
+			throw new IllegalArgumentException(rootDirectory + " does not exist or is no directory");
 		}
 	}
 
 	@RequestMapping(value = "/", method = RequestMethod.GET)
-	public ModelAndView webapps() throws IOException {
-		return new ModelAndView("webapps", "apps", Arrays.asList(rootDirectory.getFile().list(directoryFilter)));
+	public ModelAndView webapps() {
+		return new ModelAndView("webapps", "apps", Arrays.asList(rootDirectoryFile.list(directoryFilter)));
 	}
 
 	@RequestMapping(value = "/{webapp}", method = RequestMethod.GET)
-	public ModelAndView logFiles(@PathVariable("webapp") String webApp) throws IOException {
+	public ModelAndView logFiles(@PathVariable("webapp") String webApp) {
 		ModelAndView mav = new ModelAndView("logfiles", "app", webApp);
 		List<LogFile> list = new ArrayList<LogFile>();
-		for (File f : rootDirectory.createRelative(webApp + "/").createRelative("logs/").getFile().listFiles()) {
+		// TODO check if file exists, return 404 instead
+		File directory = new File(rootDirectory + webApp + "/logs/");
+		for (File f : directory.listFiles()) {
 			list.add(new LogFile(f));
 		}
 		mav.addObject("files", list);
@@ -59,8 +62,9 @@ public class LogViewController {
 	public void logFile(@PathVariable("webapp") String webApp, @PathVariable("logfile") String logFile, HttpServletResponse response)
 			throws IOException {
 		response.setContentType("text/plain");
-		InputStream stream = new FileInputStream(rootDirectory.createRelative(webApp + "/").createRelative("logs/").createRelative(logFile)
-				.getFile());
+		File file = new File(rootDirectory + webApp + "/logs/" + logFile);
+		// TODO check if file exists, return 404 instead
+		InputStream stream = new FileInputStream(file);
 		IOUtils.copy(stream, response.getOutputStream());
 		stream.close();
 		response.getOutputStream().flush();
