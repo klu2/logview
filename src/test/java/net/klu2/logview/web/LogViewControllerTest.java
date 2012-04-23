@@ -17,8 +17,7 @@ public class LogViewControllerTest {
 
 	@Before
 	public void setup() {
-		controller = new LogViewController(new FileSystemResource(
-				"./src/test/resources/WEB-INF/"));
+		controller = new LogViewController(new FileSystemResource("./src/test/resources/WEB-INF/"));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -44,12 +43,11 @@ public class LogViewControllerTest {
 		Assert.assertEquals("catalina.out", files.get(0).getName());
 		Assert.assertEquals("catcoder.log", files.get(1).getName());
 	}
-	
+
 	@Test
 	public void logfile() throws IOException {
 		MockHttpServletResponse response = new MockHttpServletResponse();
 		controller.logFile("local.catalysts.catcoder", "catalina.out", response);
 		Assert.assertEquals("Catcoder CatalinaOut", response.getContentAsString());
 	}
-
 }
