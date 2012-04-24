@@ -23,6 +23,8 @@ public class LogViewWebAppInitializer implements WebApplicationInitializer {
 	public void onStartup(ServletContext sc) throws ServletException {
 		AnnotationConfigWebApplicationContext servletContext = new AnnotationConfigWebApplicationContext();
 		servletContext.register(WebConfig.class);
+		
+		sc.getServletRegistration("default").addMapping("*.ico");
 
 		ServletRegistration.Dynamic appServlet = sc.addServlet("appServlet", new DispatcherServlet(servletContext));
 

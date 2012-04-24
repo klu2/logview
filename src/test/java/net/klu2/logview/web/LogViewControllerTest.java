@@ -1,5 +1,6 @@
 package net.klu2.logview.web;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
@@ -33,7 +34,7 @@ public class LogViewControllerTest {
 
 	@SuppressWarnings("unchecked")
 	@Test
-	public void logfiles() {
+	public void logfiles() throws FileNotFoundException {
 		ModelAndView logFiles = controller.logFiles("local.catalysts.catcoder");
 		Assert.assertEquals("logfiles", logFiles.getViewName());
 		List<LogFile> files = (List<LogFile>) logFiles.getModel().get("files");
